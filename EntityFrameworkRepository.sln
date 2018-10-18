@@ -5,6 +5,11 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhea.Data.Repository.EntityFrameworkRepository", "Nhea.Data.Repository.EntityFrameworkRepository\Nhea.Data.Repository.EntityFrameworkRepository.csproj", "{65B5F7C7-D14D-4354-B86C-47F7BA3FE59C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30B30996-5B75-4A94-87F2-2069E325E76C}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
