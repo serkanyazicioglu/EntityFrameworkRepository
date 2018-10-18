@@ -5,7 +5,7 @@ Nhea base repository classes for EF6
 
 ## Getting Started
 
-Nhea is on NuGet. You may install Nhea via NuGet Package manager.
+Nhea is on NuGet. You may install Nhea Entity Framework Repository via NuGet Package manager.
 
 https://www.nuget.org/packages/Nhea.Data.Repository.EntityFrameworkRepository/
 
