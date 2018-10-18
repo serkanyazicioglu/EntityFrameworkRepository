@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Nhea.Data.Repository.EntityFrameworkRepository")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Entity Framework 6 repository classes.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hewlett-Packard")]
+[assembly: AssemblyCompany("Serkan Yazıcıoğlu")]
 [assembly: AssemblyProduct("Nhea.Data.Repository.EntityFrameworkRepository")]
-[assembly: AssemblyCopyright("Copyright © Hewlett-Packard 2012")]
+[assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
