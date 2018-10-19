@@ -1,3 +1,5 @@
+[![NuGet](https://img.shields.io/nuget/v/Nhea.Data.Repository.EntityFrameworkRepository.svg)](https://www.nuget.org/packages/Nhea.Data.Repository.EntityFrameworkRepository/)
+
 # Nhea Entity Framework Repository
 
 Nhea base repository classes for EF6
