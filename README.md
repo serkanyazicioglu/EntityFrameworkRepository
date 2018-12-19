@@ -17,10 +17,10 @@ Project is built with .NET Framework 4.6.1.
 
 ### Configuration
 
-Creating a base repository class is a good idea to initalize basic settings.
+After initializing your data model (Code-First, Db-First etc.) creating a base repository class is a good idea to set basic properties.
 
 ```
-public abstract class Repository<T> : Nhea.Data.Repository.EntityFrameworkRepository.BaseDbRepository<T> where T : class, new()
+public abstract class BaseSqlRepository<T> : Nhea.Data.Repository.EntityFrameworkRepository.BaseDbRepository<T> where T : class, new()
     {
         private System.Data.Entity.DbContext currentDbContext;
         protected override System.Data.Entity.DbContext CurrentDbContext
@@ -41,7 +41,7 @@ public abstract class Repository<T> : Nhea.Data.Repository.EntityFrameworkReposi
     }
 ```
 
-You may remove the abstract modifier if you want to use generic repositories or you may create individual repository classes for your tables if you want to set specific properties for that table.
+You may remove the abstract modifier if you want to use generic repositories or you may create individual repository classes for your tables if you want to set specific properties for that object.
 
 ```
 public class MemberRepository : BaseSqlRepository<Member>
@@ -64,7 +64,7 @@ public class MemberRepository : BaseSqlRepository<Member>
     }
 ```
 
-Then in your code just initalize a new instance of your class and call appropriate methods you need.
+Then in your code just initalize a new instance of your class and call appropriate methods for your needs.
 
 ```
 using (MemberRepository memberRepository = new MemberRepository())
