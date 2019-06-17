@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SampleApp
+namespace TestProject
 {
-    class Program
+    [TestClass]
+    public class UnitTests
     {
-        static void Main(string[] args)
+        [TestMethod]
+        public void TestAll()
         {
             using (MemberRepository memberRepository = new MemberRepository())
             {

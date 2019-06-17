@@ -1,4 +1,4 @@
-namespace SampleApp
+namespace TestProject
 {
     using System;
     using System.Collections.Generic;

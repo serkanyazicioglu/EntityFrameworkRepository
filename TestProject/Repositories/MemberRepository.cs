@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SampleApp
+namespace TestProject
 {
     public class MemberRepository : BaseSqlRepository<Member>
     {
