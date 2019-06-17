@@ -20,7 +20,7 @@ variables:
   SQLFile: 'CreateTable.sql'
 
 steps:
--script: docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$(AdminPassword)' -p 1433:1433 --name sqltest -d mcr.microsoft.com/mssql/server:latest
+- script: docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$(AdminPassword)' -p 1433:1433 --name sqltest -d mcr.microsoft.com/mssql/server:latest
 
 - task: CmdLine@1
   displayName: Run Sqlcmd
