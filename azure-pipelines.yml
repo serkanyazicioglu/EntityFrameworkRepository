@@ -9,6 +9,14 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+container: mcr.microsoft.com/windows/servercore:1803
+
+services:
+  mssql: 
+    image: microsoft/mssql-server-windows-developer
+    ports:
+    - 1433:1433/tcp
+
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
