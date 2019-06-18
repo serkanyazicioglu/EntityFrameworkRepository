@@ -7,13 +7,13 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'win1803'
 
 container: mcr.microsoft.com/windows/servercore:1803
 
 services:
   mssql: 
-    image: microsoft/mssql-server-windows-developer
+    image: microsoft/mssql-server-windows-express
     ports:
     - 1433:1433/tcp
 
@@ -28,7 +28,7 @@ variables:
   SQLFile: 'CreateTable.sql'
 
 steps:
-- script: docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$(AdminPassword)' -p 1433:1433 --name sqltest -d microsoft/mssql-server-windows-developer:latest
+- script: docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$(AdminPassword)' -p 1433:1433 --name sqltest -d microsoft/mssql-server-windows-express:latest
 
 - task: CmdLine@1
   displayName: Run Sqlcmd
