@@ -4,12 +4,35 @@ using System.Linq;
 using Nhea.Data;
 using System.Linq.Expressions;
 using System.Data.Entity.Core.Objects;
+using System.Threading.Tasks;
+using System.Data.Entity;
+using Nhea.Helper;
+using System.Data.Entity.Core;
 
 namespace Nhea.Data.Repository.EntityFrameworkRepository
 {
     public abstract class BaseEntityFrameworkRepository<T> : Nhea.Data.Repository.BaseRepository<T>, IDisposable where T : class, new()
     {
+        protected abstract System.Data.Entity.DbContext CurrentDbContext { get; }
+
         protected abstract System.Data.Entity.Core.Objects.ObjectContext CurrentContext { get; }
+
+        private System.Data.Entity.Core.Objects.ObjectContext CurrentContextWithOptions
+        {
+            get
+            {
+                var context = CurrentContext;
+
+                if (this.IsReadOnly)
+                {
+                    CurrentDbContext.Configuration.AutoDetectChangesEnabled = false;
+                    CurrentDbContext.Configuration.ProxyCreationEnabled = false;
+                    context.ContextOptions.ProxyCreationEnabled = false;
+                }
+
+                return context;
+            }
+        }
 
         private ObjectSet<T> currentObjectSet;
         protected ObjectSet<T> CurrentObjectSet
@@ -18,7 +41,7 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
             {
                 if (currentObjectSet == null)
                 {
-                    currentObjectSet = CurrentContext.CreateObjectSet<T>();
+                    currentObjectSet = CurrentContextWithOptions.CreateObjectSet<T>();
                 }
 
                 return currentObjectSet;
@@ -43,6 +66,23 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
             if (filter != null)
             {
                 entity = CurrentObjectSet.SingleOrDefault(filter);
+            }
+
+            return entity;
+        }
+
+        protected override async Task<T> GetSingleCoreAsync(Expression<Func<T, bool>> filter, bool getDefaultFilter)
+        {
+            T entity = default(T);
+
+            if (getDefaultFilter && DefaultFilter != null)
+            {
+                filter = filter.And(DefaultFilter);
+            }
+
+            if (filter != null)
+            {
+                entity = await CurrentObjectSet.SingleOrDefaultAsync(filter);
             }
 
             return entity;
@@ -99,36 +139,41 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
 
         #endregion
 
+        private Expression<Func<T, bool>> SetFilter(Expression<Func<T, bool>> filter, bool getDefaultFilter)
+        {
+            if (getDefaultFilter && DefaultFilter != null)
+            {
+                filter = filter.And(DefaultFilter);
+            }
+
+            if (filter == null)
+            {
+                filter = query => true;
+            }
+
+            return filter;
+        }
+
         #region Count & Any
 
         protected override int CountCore(Expression<Func<T, bool>> filter, bool getDefaultFilter)
         {
-            if (getDefaultFilter && DefaultFilter != null)
-            {
-                filter = filter.And(DefaultFilter);
-            }
+            return this.CurrentObjectSet.Count(SetFilter(filter, getDefaultFilter));
+        }
 
-            if (filter == null)
-            {
-                filter = query => true;
-            }
-
-            return this.CurrentObjectSet.Count(filter);
+        protected override async Task<int> CountCoreAsync(Expression<Func<T, bool>> filter, bool getDefaultFilter)
+        {
+            return await this.CurrentObjectSet.CountAsync(SetFilter(filter, getDefaultFilter));
         }
 
         protected override bool AnyCore(Expression<Func<T, bool>> filter, bool getDefaultFilter)
         {
-            if (getDefaultFilter && DefaultFilter != null)
-            {
-                filter = filter.And(DefaultFilter);
-            }
+            return this.CurrentObjectSet.Any(SetFilter(filter, getDefaultFilter));
+        }
 
-            if (filter == null)
-            {
-                filter = query => true;
-            }
-
-            return this.CurrentObjectSet.Any(filter);
+        protected override async Task<bool> AnyCoreAsync(Expression<Func<T, bool>> filter, bool getDefaultFilter)
+        {
+            return await this.CurrentObjectSet.AnyAsync(SetFilter(filter, getDefaultFilter));
         }
 
         #endregion
@@ -154,7 +199,12 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
 
         public override void Save()
         {
-            CurrentContext.SaveChanges();
+            CurrentContextWithOptions.SaveChanges();
+        }
+
+        public override async Task SaveAsync()
+        {
+            await CurrentContextWithOptions.SaveChangesAsync();
         }
 
         #endregion
@@ -167,13 +217,13 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
 
             foreach (var entity in entites)
             {
-                CurrentContext.DeleteObject(entity);
+                CurrentContextWithOptions.DeleteObject(entity);
             }
         }
 
         public override void Delete(T entity)
         {
-            CurrentContext.DeleteObject(entity);
+            CurrentContextWithOptions.DeleteObject(entity);
         }
 
         #endregion
@@ -182,22 +232,81 @@ namespace Nhea.Data.Repository.EntityFrameworkRepository
 
         public override void Refresh(T entity)
         {
-            CurrentContext.Refresh(RefreshMode.StoreWins, entity);
+            CurrentContextWithOptions.Refresh(RefreshMode.StoreWins, entity);
         }
 
         #endregion
 
         public override void Dispose()
         {
-            if (CurrentContext != null)
+            try
             {
-                CurrentContext.Dispose();
+                if (CurrentContext != null)
+                {
+                    CurrentContext.Dispose();
+                }
             }
+            catch
+            { }
 
-            if (CurrentObjectSet != null)
+            try
             {
-                CurrentObjectSet = null;
+                if (CurrentObjectSet != null)
+                {
+                    CurrentObjectSet = null;
+                }
             }
+            catch
+            { }
+
+            try
+            {
+                if (CurrentDbContext != null)
+                {
+                    CurrentDbContext.Dispose();
+                }
+            }
+            catch
+            { }
+        }
+
+        public override T GetById(object id)
+        {
+            try
+            {
+                System.Data.Entity.Core.Metadata.Edm.EdmMember key = CurrentObjectSet.EntitySet.ElementType.KeyMembers.SingleOrDefault();
+
+                if (key != null)
+                {
+                    CurrentContext.MetadataWorkspace.LoadFromAssembly(typeof(T).Assembly);
+
+                    System.Data.Entity.Core.EntityKey e = new System.Data.Entity.Core.EntityKey(this.CurrentContext.DefaultContainerName + "." + typeof(T).Name, key.Name, ConvertionHelper.GetConvertedValue(id, ((System.Data.Entity.Core.Metadata.Edm.PrimitiveType)(key.TypeUsage.EdmType)).ClrEquivalentType));
+
+                    return (T)this.CurrentContext.GetObjectByKey(e);
+                }
+                else
+                {
+                    throw new Exception("This object doesn't have a key specified!");
+                }
+            }
+            catch (ObjectNotFoundException)
+            {
+                return null;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public override async Task<T> GetByIdAsync(object id)
+        {
+            return GetById(id);
+        }
+
+        public override bool IsNew(T entity)
+        {
+            return CurrentDbContext.Entry(entity).State == System.Data.Entity.EntityState.Added;
         }
     }
 }
