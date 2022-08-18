@@ -1,5 +1,9 @@
 [![NuGet](https://img.shields.io/nuget/v/Nhea.Data.Repository.EntityFrameworkRepository.svg)](https://www.nuget.org/packages/Nhea.Data.Repository.EntityFrameworkRepository/)
 
+# Deprecation
+
+This library is now deprecated. It's highly recommended to migrate your code to .Net Core and Nhea.Data.Repository.EntityFrameworkCoreRepository library for latest updates.
+
 # Nhea Entity Framework Repository
 
 Nhea base repository classes for EF6
